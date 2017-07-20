@@ -3,3 +3,5 @@
 
 # Found at https://www.toggl.com/app/profile at the bottom of the page
 API_TOKEN = ""
+TL_USERNAME = ""
+TL_PASSWORD = ""
