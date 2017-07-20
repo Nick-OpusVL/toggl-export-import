@@ -9,9 +9,9 @@ from datetime import datetime
 	
 def export():
 	print("Enter the start date in format YYYY-MM-DD")
-	start_date = datetime.strptime('2017-07-20', '%Y-%m-%d').isoformat() + '+01:00'
+	start_date = datetime.strptime(raw_input(), '%Y-%m-%d').isoformat() + '+01:00'
 	print("Enter the end date in format YYYY-MM-DD")
-	end_date = datetime.strptime('2017-07-21', '%Y-%m-%d').isoformat() + '+01:00'
+	end_date = datetime.strptime(raw_input(), '%Y-%m-%d').isoformat() + '+01:00'
 	r = requests.get(
 		"https://www.toggl.com/api/v8/time_entries",
 		params={'start_date': start_date, 'end_date': end_date},
