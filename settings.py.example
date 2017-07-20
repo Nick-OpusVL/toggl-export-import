@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+# coding=utf-8
+
+# Found at https://www.toggl.com/app/profile at the bottom of the page
+API_TOKEN = ""
