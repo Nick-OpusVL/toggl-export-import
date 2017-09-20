@@ -13,7 +13,10 @@ def export(date_string):
 	if not date_string:
 		mydate = datetime.strftime(date.today(), '%Y-%m-%d')
 	else:
-		mydate = date_string
+                if date_string.strip().startswith('yest'):
+                    mydate = (date.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+                else:
+                    mydate = date_string
 	r = requests.get(
 		"https://www.toggl.com/api/v8/time_entries",
 		params={'start_date': mydate + 'T00:00:00+00:00', 'end_date': mydate + 'T23:59:59+00:00'},
