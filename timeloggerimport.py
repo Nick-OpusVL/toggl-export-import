@@ -24,6 +24,7 @@ from datetime import datetime, timedelta
 
 br = mechanize.Browser()
 
+import pprint
 def import_data(data):
     prepare_browser()
     login_intranet()
@@ -34,12 +35,26 @@ def import_data(data):
         raise NotImplementedError
     else:
         follow_correct_date_link(next(iter(line_dates)))
+        log_lines = {}
         for line in data:
-            log_time_for_line(line)
+            lv = line.values()[0]
+            linekey = (lv['date'], lv['contract'], lv['description'])
+            log_lines.setdefault(linekey, []).append(line)
+
+        for ((dt, contract, desc), lines) in log_lines.items():
+            log_time_for_group(dt, contract, desc, [l.values()[0] for l in lines])
 
 def log_time_for_line(line):
     follow_log_time_link()
     log_line(line)
+
+def log_time_for_group(dt, contract, description, lines):
+    follow_log_time_link()
+    total_duration = sum(l['duration'] for l in lines)
+    logging_line = {1: {'contract': contract, 'description': description, 'duration': total_duration, 'date': dt}}
+    pprint.pprint(logging_line)
+    log_line(logging_line)
+
 
 def log_line(line):
     br.form = list(br.forms())[0]
