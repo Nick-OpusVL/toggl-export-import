@@ -60,7 +60,7 @@ def log_line(line):
         minutes_form = br.form.find_control("minutes_spent")
         # Round to 15 as the timelogger doesn't support other values
         minutes_form.value = str(int(15 * round(float(minutes) / 15)))
-    ref = re.match(r'^\[([A-Za-z0-9]+)\].*', line.values()[0].get('description', ''))
+    ref = re.match(r'^\[([A-Za-z0-9, ]+)\].*', line.values()[0].get('description', ''))
     if ref:
         br.form.find_control("reference").value = ref.group(1)
     br.submit()
