@@ -73,7 +73,11 @@ def log_line(line):
     if minutes:
         minutes_form = br.form.find_control("minutes_spent")
         # Round to 15 as the timelogger doesn't support other values
-        minutes_form.value = str(int(15 * round(float(minutes) / 15)))
+        if not days and not hours and minutes < 15:
+            # Always round < 15 up to 15 minutes
+            minutes_form.value = "15"
+        else:
+            minutes_form.value = str(int(15 * round(float(minutes) / 15)))
     br.submit()
 
 def get_project_id(project_id_form, project_name):
