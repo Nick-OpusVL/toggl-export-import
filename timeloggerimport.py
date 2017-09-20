@@ -4,6 +4,7 @@ import mechanize
 import settings
 import ssl
 from datetime import datetime, timedelta
+import re
 
 """The expected format of data is _currently_
 [
@@ -79,7 +80,7 @@ def log_line(line):
         else:
             minutes_form.value = str(int(15 * round(float(minutes) / 15)))
     import re
-    ref = re.match(r'^\[([A-Za-z0-9]+)\].*', line.values()[0].get('description', ''))
+    ref = re.match(r'^\[([A-Za-z0-9, ]+)\].*', line.values()[0].get('description', ''))
     if ref:
         br.form.find_control("reference").value = ref.group(1)
     br.submit()
