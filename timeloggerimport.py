@@ -78,6 +78,10 @@ def log_line(line):
             minutes_form.value = "15"
         else:
             minutes_form.value = str(int(15 * round(float(minutes) / 15)))
+    import re
+    ref = re.match(r'^\[([A-Za-z0-9]+)\].*', line.values()[0].get('description', ''))
+    if ref:
+        br.form.find_control("reference").value = ref.group(1)
     br.submit()
 
 def get_project_id(project_id_form, project_name):
