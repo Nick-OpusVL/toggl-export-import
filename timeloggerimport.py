@@ -5,6 +5,7 @@ import settings
 import ssl
 from datetime import datetime, timedelta
 import re
+import sys
 
 """The expected format of data is _currently_
 [
@@ -60,7 +61,11 @@ def log_time_for_group(dt, contract, description, lines):
 def log_line(line):
     br.form = list(br.forms())[0]
     project_id_form = br.form.find_control("project_id")
-    tl_project_id = get_project_id(project_id_form, line.values()[0].get('contract'))
+    try:
+        tl_project_id = get_project_id(project_id_form, line.values()[0].get('contract'))
+    except ValueError as exc:
+        sys.stderr.write("Error: {}\n".format(exc))
+        return
     project_id_form.value = [tl_project_id]
     comments_form = br.form.find_control("comments")
     comments_form.value = line.values()[0].get('description')
@@ -89,6 +94,7 @@ def get_project_id(project_id_form, project_name):
     for item in project_id_form.items:
         if item.get_labels() and item.get_labels()[0].text == project_name:
             return item.name
+    raise ValueError("Contract not found in timelogger: {}".format(project_name))
 
 def get_duration(sec):
     d = datetime(1,1,1) + timedelta(seconds=int(sec))
