@@ -1,0 +1,106 @@
+#! /usr/bin/env python2
+
+"""Output report of toggl clocking gaps and overlaps
+"""
+
+import sys
+import argparse
+import requests
+import settings
+import datetime
+from datetime import timedelta
+from operator import itemgetter
+import pprint
+import json
+import dateutil.parser
+from itertools import izip_longest
+
+def main(options):
+    """Main program."""
+    # MAIN_LOGIC
+    mydate = options.date or datetime.datetime.today().strftime('%Y-%m-%d')
+    r = requests.get(
+		"https://www.toggl.com/api/v8/time_entries",
+		params={'start_date': mydate + 'T00:00:00+00:00', 'end_date': mydate + 'T23:59:59+00:00'},
+		headers={'Content-Type': 'application/json'},
+		auth=(settings.API_TOKEN, 'api_token'),
+    )
+    entries = sorted(convert(r.text), key=itemgetter('start'))
+    pairs = list(izip_longest([None]+entries, entries))
+    for (prev, this) in pairs:
+        if not prev:
+            # start of day
+            print "Start of day"
+        if this:
+            if prev:
+                difference = this['start'] - prev['end']
+                if difference > timedelta(minutes=1):
+                    print "Clocking Gap: {}".format(fmt_difference(difference))
+            print "  {start} -> {end} = {dur:<20} : {desc}".format(
+                start=fmt_time(this['start']),
+                end=fmt_time(this['end']),
+                dur=fmt_difference(this['end'] - this['start']),
+                desc=this['description'],
+            )
+
+        else:
+            print "End of day"
+
+def fmt_time(dt):
+    return dt.strftime('%H:%M:%S')
+
+def fmt_difference(diff):
+    bits = []
+    hours, rem = divmod(diff.seconds, 60*60)
+    mins, rem = divmod(rem, 60)
+    secs = rem
+    if diff.days:
+        bits.append('{}d'.format(diff.days))
+    if hours:
+        bits.append('{}h'.format(hours))
+    if mins:
+        bits.append('{}m'.format(mins))
+    if secs:
+        bits.append('{}s'.format(secs))
+    if not bits:
+        return None
+    return " ".join(bits)
+
+
+def convert(raw_json):
+    items = list()
+    for raw_item in json.loads(raw_json):
+        start = dateutil.parser.parse(raw_item['start'])
+        end = start + timedelta(seconds=raw_item['duration'])
+        items.append({
+            'duration': raw_item.get('duration'),
+            'contract': get_project_name(raw_item.get('pid')),
+            'description': raw_item.get('description'),
+            'start': start,
+            'end': end,
+        })
+    return items
+
+def get_project_name(project_id):
+	if not project_id:
+		return ''
+	r = requests.get(
+		'https://www.toggl.com/api/v8/projects/' + str(project_id),
+		headers={'Content-Type': 'application/json'},
+		auth=(settings.API_TOKEN, 'api_token'),
+	)
+	return json.loads(r.text).get('data').get('name')
+
+def get_options():
+    """Get options for the script."""
+    parser = argparse.ArgumentParser(
+        description="output report of toggl clocking gaps and overlaps",
+    )
+    # parser.add_argument() calls here
+    parser.add_argument('--date', '-d', help='date in YYYY-MM-DD format.  Default is today.')
+    options = parser.parse_args()
+    # extra processing of options here
+    return options
+
+if __name__ == "__main__":
+    main(get_options())
