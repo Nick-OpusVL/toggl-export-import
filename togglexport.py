@@ -10,7 +10,7 @@ def export(date_string):
 	if not date_string:
 		print("Enter the date you wish to upload in format YYYY-MM-DD. Fallback default is today")
 		date_string = raw_input()
-	if not date_string:
+	if not date_string or date_string.strip().startswith('tod'):
 		mydate = datetime.strftime(date.today(), '%Y-%m-%d')
 	else:
                 if date_string.strip().startswith('yest'):
