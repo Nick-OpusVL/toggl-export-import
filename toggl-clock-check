@@ -1,6 +1,6 @@
 #! /usr/bin/env python2
 
-"""Output report of toggl clocking gaps
+"""Output report of toggl clocking gaps and overlaps
 """
 
 import sys
@@ -39,7 +39,9 @@ def main(options):
                 difference = this['start'] - prev['end']
                 if difference > timedelta(minutes=1):
                     print "Gap: {}".format(fmt_difference(difference))
-                # TODO Handle overlaps
+                if difference < timedelta(minutes=-1):
+                    # TODO show how much it overlaps by.  The obvious of fmt_difference(difference) gave very wrong amount
+                    print "Overlap"
             print "  {start} -> {end} = {dur:<20} : {desc}".format(
                 start=fmt_time(this['start']),
                 end=fmt_time(this['end']),
@@ -88,7 +90,7 @@ def convert(raw_json):
 def get_options():
     """Get options for the script."""
     parser = argparse.ArgumentParser(
-        description="output report of toggl clocking gaps",
+        description="output report of toggl clocking gaps and overlaps",
     )
     # parser.add_argument() calls here
     parser.add_argument('--date', '-d', help='date in YYYY-MM-DD format.  Default is today.')
