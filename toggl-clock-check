@@ -38,7 +38,7 @@ def main(options):
             if prev:
                 difference = this['start'] - prev['end']
                 if difference > timedelta(minutes=1):
-                    print "Clocking Gap: {}".format(fmt_difference(difference))
+                    print "Gap: {}".format(fmt_difference(difference))
                 # TODO Handle overlaps
             print "  {start} -> {end} = {dur:<20} : {desc}".format(
                 start=fmt_time(this['start']),
