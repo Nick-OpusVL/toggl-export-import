@@ -19,6 +19,7 @@ def main(options):
     """Main program."""
     # MAIN_LOGIC
     mydate = options.date or datetime.datetime.today().strftime('%Y-%m-%d')
+    mydt = datetime.datetime.strptime(mydate, '%Y-%m-%d')
     r = requests.get(
 		"https://www.toggl.com/api/v8/time_entries",
 		params={'start_date': mydate + 'T00:00:00+00:00', 'end_date': mydate + 'T23:59:59+00:00'},
@@ -26,11 +27,12 @@ def main(options):
 		auth=(settings.API_TOKEN, 'api_token'),
     )
     entries = sorted(convert(r.text), key=itemgetter('start'))
+    date_formatted = mydt.strftime('%A %Y-%m-%d')
     pairs = list(izip_longest([None]+entries, entries))
     for (prev, this) in pairs:
         if not prev:
             # start of day
-            print "Start of day"
+            print "Start of day " + date_formatted
         if this:
             if prev:
                 difference = this['start'] - prev['end']
@@ -45,7 +47,7 @@ def main(options):
             )
 
         else:
-            print "End of day"
+            print "End of day " + date_formatted
 
 def fmt_time(dt):
     return dt.strftime('%H:%M:%S')
