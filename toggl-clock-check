@@ -34,8 +34,12 @@ def main(options):
         if this:
             if prev:
                 difference = this['start'] - prev['end']
+                diff_str = fmt_difference(difference)
                 if difference > timedelta(minutes=1):
-                    print "Clocking Gap: {}".format(fmt_difference(difference))
+                    print "Gap: {}".format(diff_str)
+                if difference < timedelta(seconds=0):
+                    # FIXME This shows a false-positive overlap on the last entry of the day for some reason
+                    print "Overlap: {}".format(diff_str)
             print "  {start} -> {end} = {dur:<20} : {desc}".format(
                 start=fmt_time(this['start']),
                 end=fmt_time(this['end']),
