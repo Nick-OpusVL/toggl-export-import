@@ -62,7 +62,10 @@ def log_line(line):
     br.form = list(br.forms())[0]
     project_id_form = br.form.find_control("project_id")
     try:
-        tl_project_id = get_project_id(project_id_form, line.values()[0].get('contract'))
+        project_name = line.values()[0].get('contract')
+        if not project_name:
+            raise ValueError('No project specified - cannot log this')
+        tl_project_id = get_project_id(project_id_form, project_name)
     except ValueError as exc:
         sys.stderr.write("Error: {}\n".format(exc))
         return
