@@ -23,6 +23,7 @@ def main(argv=None):
         sys.stderr.write("{}\n".format(exc))
         sys.stderr.write(r.text)
         raise
+    # TODO pull and fill in project details
     sys.stdout.write(r.text)
 
 
