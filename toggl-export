@@ -9,7 +9,6 @@ import settings
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--day', '-d', required=True)
-    parser.add_argument('--format', '-F', choices=['csv', 'json'], default='csv')
     opts = parser.parse_args(argv)
     r = requests.get(
         "https://www.toggl.com/api/v8/time_entries",
@@ -25,10 +24,7 @@ def main(argv=None):
         sys.stderr.write("{}\n".format(exc))
         sys.stderr.write(r.text)
         raise
-    if opts.format == 'json':
-        sys.stdout.write(r.text)
-    else:
-        raise NotImplementedError("CSV output not yet implemented")
+    sys.stdout.write(r.text)
 
 
 if __name__ == '__main__':
