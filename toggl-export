@@ -1,0 +1,35 @@
+#!/usr/bin/env python2
+
+import sys
+import os
+import argparse
+import requests
+import settings
+
+def main(argv=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--day', '-d', required=True)
+    parser.add_argument('--format', '-F', choices=['csv', 'json'], default='csv')
+    opts = parser.parse_args(argv)
+    r = requests.get(
+        "https://www.toggl.com/api/v8/time_entries",
+        # TODO beware using +00:00 for everything - what if it's BST and you do some work just after midnight?
+        params={'start_date': opts.day + 'T00:00:00+00:00', 'end_date': opts.day + 'T23:59:59+00:00'},
+        headers={'Content-Type': 'application/json'},
+        auth=(os.environ['TOGGL_API_TOKEN'], 'api_token'),
+    )
+    try:
+        r.raise_for_status()
+    except requests.exceptions.HTTPError as exc:
+        # Raising and catching gives us the stringified version of the status code (I think)
+        sys.stderr.write("{}\n".format(exc))
+        sys.stderr.write(r.text)
+        raise
+    if opts.format == 'json':
+        sys.stdout.write(r.text)
+    else:
+        raise NotImplementedError("CSV output not yet implemented")
+
+
+if __name__ == '__main__':
+    main()
