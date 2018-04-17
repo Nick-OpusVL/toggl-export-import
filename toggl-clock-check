@@ -15,10 +15,14 @@ import json
 import dateutil.parser
 from itertools import izip_longest
 import togglexport
+import os
+import time
+import pytz
 
 def main(options):
     """Main program."""
     # MAIN_LOGIC
+    tz = os.getenv('TZ') or 'UTC'
     mydate = options.date or datetime.datetime.today().strftime('%Y-%m-%d')
     mydt = datetime.datetime.strptime(mydate, '%Y-%m-%d')
     r = requests.get(
@@ -43,8 +47,8 @@ def main(options):
                     # TODO show how much it overlaps by.  The obvious of fmt_difference(difference) gave very wrong amount
                     print "Overlap"
             print "  {start} -> {end} = {dur:<20} : {desc}".format(
-                start=fmt_time(this['start']),
-                end=fmt_time(this['end']),
+                start=fmt_time(this['start'], tz),
+                end=fmt_time(this['end'], tz),
                 dur=fmt_difference(this['end'] - this['start']),
                 desc=this['description'],
             )
@@ -52,8 +56,10 @@ def main(options):
         else:
             print "End of day " + date_formatted
 
-def fmt_time(dt):
-    return dt.strftime('%H:%M:%S')
+def fmt_time(dt, tz):
+    dt_utc = dt.replace(tzinfo=pytz.utc)
+    dt_local = dt.astimezone(pytz.timezone(tz))
+    return dt_local.strftime('%H:%M:%S')
 
 def fmt_difference(diff):
     bits = []
