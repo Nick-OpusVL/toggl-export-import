@@ -33,7 +33,7 @@ def main(options):
     )
     entries = sorted(convert(r.text), key=itemgetter('start'))
     date_formatted = mydt.strftime('%A %Y-%m-%d')
-    pairs = list(izip_longest([None]+entries, entries))
+    pairs = list(izip_longest([None]+entries, entries)) # look at each clock entry and its predecessor
     for (prev, this) in pairs:
         if not prev:
             # start of day
